@@ -1,0 +1,75 @@
+/* Hallmark · genre: editorial · macrostructure: Marquee Hero · theme: Garden (deep green)
+ * nav: N1a wordmark + 2 links · footer: Ft1 mast-headed · enrichment: none
+ * paper: oklch(96.5% 0.009 95) · ink: oklch(20% 0.014 150) · accent: oklch(40% 0.1 152) forest green
+ * type: Fraunces (display) + IBM Plex Sans (body) + JetBrains Mono (outlier)
+ * axes: light paper / roman-serif display / chromatic-other accent
+ * pre-emit critique: P4 H5 E4 S4 R5 V4
+ * contrast: pass · nav/footer/slop: pass · honest: pass · chrome: pass · tokens: pass
+ * Tokens live here in Tailwind v4 `@theme static`, not a separate tokens.css,
+ * because this repo already keeps one global stylesheet.
+ */
+@import "tailwindcss";
+
+/*
+ * Tailwind scans the project for class names on its own, but an explicit source
+ * keeps the scan on `src/` when Vite runs from the monorepo root.
+ * https://tailwindcss.com/docs/detecting-classes-in-source-files
+ */
+@source "../";
+
+/*
+ * Design tokens. Each token becomes a utility, for example
+ * `--color-brand` -> `bg-brand`, `--font-sans` -> `font-sans`. `static` keeps
+ * every variable in the output so `var(--color-brand)` also works.
+ * https://tailwindcss.com/docs/theme
+ */
+@theme static {
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Fraunces", ui-serif, Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-background: oklch(96.5% 0.009 95);
+  --color-foreground: oklch(20% 0.014 150);
+  --color-surface: oklch(93% 0.011 120);
+  --color-muted: oklch(94% 0.009 120);
+  --color-muted-foreground: oklch(42% 0.014 130);
+  --color-border: oklch(84% 0.012 120);
+  --color-brand: oklch(40% 0.1 152);
+  --color-brand-foreground: oklch(97% 0.012 100);
+  --color-focus: oklch(40% 0.1 152);
+  --color-code: oklch(22% 0.022 152);
+  --color-code-foreground: oklch(93% 0.012 120);
+  --color-code-accent: oklch(74% 0.12 150);
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    overflow-x: clip;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    overflow-x: clip;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-brand);
+    color: var(--color-brand-foreground);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

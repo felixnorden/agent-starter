@@ -1,0 +1,18 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "app-starter-agents",
+	"compatibility_date": "2026-06-01",
+	"compatibility_flags": ["nodejs_compat"],
+	// Workers AI. The keyless `cloudflare/...` model specifier dispatches
+	// through this binding (env.AI.run), so declare it here. `remote: true`
+	// states that AI calls leave local dev and bill the account.
+	"ai": { "binding": "AI", "remote": true },
+	// Workers Traces shows each agent response as a trace with agent-level
+	// spans: https://flueframework.com/docs/guide/observability/#cloudflare
+	"observability": { "traces": { "enabled": true } },
+	// Every agent generates a Durable Object class named after its identity
+	// (Assistant -> FlueAssistantAgent), and Cloudflare requires a migration
+	// entry for each one. Append a new tag when you add an agent:
+	// https://flueframework.com/docs/guide/cloudflare-target/#managing-migrations
+	"migrations": [{ "tag": "v1", "new_sqlite_classes": ["FlueAssistantAgent"] }]
+}

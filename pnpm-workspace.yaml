@@ -1,7 +1,25 @@
+packages:
+  - "packages/*"
+
+# @flue/runtime 2.1.1 allows `@earendil-works/pi-ai` ^0.83.0, but versions
+# below 0.86.0 send no `x-opencode-session` header. OpenCode Go rejects those
+# requests with 400 MissingSessionID. 0.87.1 is the latest release that sends
+# the header, and it stays inside the ^0.83.0 range Flue declares.
+overrides:
+  "@earendil-works/pi-ai": "0.87.1"
+
 # pnpm 11 no longer reads the package.json "pnpm" field; these projects are
 # also installed standalone (tarball E2E envs, create-rwsdk output), so they
 # carry their own build-script approvals.
+#
+# true  = run the package's install scripts.
+# false = reviewed and deliberately not run. These three ship prebuilt; their
+#         install scripts only print donation messages or run a prepare step
+#         that is meant for source checkouts.
 allowBuilds:
+  '@google/genai': false
+  core-js-pure: false
   esbuild: true
+  protobufjs: false
   sharp: true
   workerd: true

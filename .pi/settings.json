@@ -1,0 +1,6 @@
+{
+  "packages": [
+    "npm:@ftrdotdev/pi-qrspi@0.2.2",
+    "npm:pi-subagents@0.70.1"
+  ]
+}

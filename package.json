@@ -1,0 +1,27 @@
+{
+  "name": "app-starter",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "packageManager": "pnpm@12.6.0",
+  "description": "Monorepo: RedwoodSDK app plus Flue agents, wired together with a Cloudflare service binding",
+  "engines": {
+    "node": ">=22.20.0"
+  },
+  "scripts": {
+    "dev": "node scripts/require-account.mjs dev && turbo run dev",
+    "build": "turbo run build",
+    "check": "turbo run check:types",
+    "check:types": "turbo run check:types",
+    "gen": "turbo run generate",
+    "deploy:agents": "node scripts/require-account.mjs deploy && turbo run deploy --filter=./packages/agents",
+    "deploy:app": "node scripts/require-account.mjs deploy && turbo run deploy --filter=./packages/app",
+    "clean": "rm -rf .turbo packages/*/.turbo packages/*/dist packages/app/node_modules/.vite",
+    "skills:sync": "skills experimental_install -y"
+  },
+  "devDependencies": {
+    "skills": "1.7.0",
+    "turbo": "^2.11.4"
+  }
+}

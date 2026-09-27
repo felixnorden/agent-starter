@@ -18,6 +18,9 @@
     },
     "deploy": {
       "cache": false
+    },
+    "generate": {
+      "cache": false
     }
   }
 }

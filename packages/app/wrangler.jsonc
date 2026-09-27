@@ -1,0 +1,39 @@
+{
+  // Schema reference for wrangler configuration
+  "$schema": "node_modules/wrangler/config-schema.json",
+
+  // Name of your worker
+  "name": "app-starter",
+
+  // Entry point for your worker
+  "main": "src/worker.tsx",
+
+  // Compatibility settings
+  "compatibility_date": "2026-08-01",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // Service binding to the Flue agents Worker in packages/agents. Calls travel
+  // Worker-to-Worker with no public URL. Run `pnpm dev` from the repo root so
+  // the agents Worker is up for local calls to resolve.
+  "services": [
+    {
+      "binding": "AGENT",
+      "service": "app-starter-agents",
+    },
+  ],
+
+  // Assets configuration
+  "assets": {
+    "binding": "ASSETS",
+  },
+
+  // Observability settings
+  "observability": {
+    "enabled": true,
+  },
+
+  // Environment variables
+  "vars": {
+    // Add your environment variables here
+  },
+}

@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.env
+.wrangler/
+
+# Flue generated build inputs
+.flue-vite/
+.flue-vite.wrangler.jsonc
