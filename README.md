@@ -2,8 +2,8 @@
 
 A pnpm + Turborepo monorepo with two Cloudflare Workers:
 
-- `packages/app` — the RedwoodSDK application.
-- `packages/agents` — [Flue](https://flueframework.com) agents.
+- `packages/app` is the RedwoodSDK application.
+- `packages/agents` holds the [Flue](https://flueframework.com) agents.
 
 The app Worker calls the agents Worker through the `AGENT` service binding.
 No public URL sits between them.
@@ -138,9 +138,8 @@ pnpm skills:sync      # only when the check fails
 
 The restore is expensive. It clones one GitHub repository per skill and submits
 each one to third-party security scanners, so five skills took over a minute in
-testing. It deliberately does **not** run on `pnpm install`, so installs stay
-fast and work offline. That is why `skills:check` exists: it is cheap, and it
-keeps the expensive restore out of the common case.
+testing. `pnpm install` deliberately skips it, so installs stay fast and work
+offline, and `pnpm skills:check` tells you when the restore is needed.
 
 `skills` is a devDependency, so its version is pinned and `pnpm skills:sync`
 needs no global install. Pi discovers `.agents/skills/` by itself, so nothing
@@ -186,7 +185,7 @@ nothing in a repository should decide that.
 
 `packages/agents/wrangler.jsonc` declares an `ai` binding. Workers AI has no
 local implementation, so the Cloudflare Vite plugin opens a remote session at
-dev startup — before any model call. That session needs a valid account even if
+dev startup, before any model call. That session needs a valid account even if
 the agent never runs.
 
 `packages/agents/vite.config.ts` therefore disables the plugin's `remoteBindings`
@@ -300,16 +299,16 @@ const conversation = createFlueClient({
 });
 ```
 
-The origin is never dialed — only the pathname selects a route.
+The binding ignores the origin. Only the pathname selects a route.
 
 Three settings in `packages/agents/vite.config.ts` let both Workers run on one
 machine:
 
-- `server.port: 5174` — the app owns 5173.
-- `server.allowedHosts: ['agents.internal']` — Vite's dev host check rejects the
+- `server.port: 5174`. The app owns 5173.
+- `server.allowedHosts: ['agents.internal']`. Vite's dev host check rejects the
   placeholder origin that the binding forwards. Production Workers do not check
   hosts.
-- `inspectorPort: 9230` — both Workers default to inspector port 9229.
+- `inspectorPort: 9230`. Both Workers default to inspector port 9229.
 
 ## Agent tooling for development
 
@@ -345,12 +344,12 @@ other developers.
 
 `.pi/settings.json` declares two Pi packages. Pi installs them on first load:
 
-- `npm:@ftrdotdev/pi-qrspi` — the QRSPI planning workflow. Six phases run in
+- `npm:@ftrdotdev/pi-qrspi` is the QRSPI planning workflow. Six phases run in
   order: Questions, Research, Design, Structure, Plan, Iterate. Each phase
   writes an artifact under `.qrspi/` and waits for your approval before the next
   phase starts. Nothing is implemented until you approve the plan.
-- `npm:pi-subagents` — child-agent delegation. QRSPI runs each phase in a
-  fresh-context subagent, so the orchestrator session stays clean. The extension
+- `npm:pi-subagents` handles child-agent delegation. QRSPI runs each phase in a
+  fresh-context subagent, so the orchestrator context stays small. The extension
   also supplies the `reviewer`, `scout`, and `oracle` agents.
 
 Start a full run:

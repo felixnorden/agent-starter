@@ -1,11 +1,11 @@
 # agents
 
-A [Flue](https://flueframework.com) agent project — the `agents` package of this
-monorepo.
+The `agents` package of this monorepo. It runs [Flue](https://flueframework.com)
+agents.
 
 ## Setup
 
-Dependencies are installed from the monorepo root:
+Install dependencies from the monorepo root:
 
 ```sh
 pnpm install
@@ -21,7 +21,8 @@ needs no API key. To use another provider, add its key to `.env` (any
 npx flue run src/agents/assistant.ts --message "Say hello!"
 ```
 
-Conversations are durable — pass `--id <id>` to continue one.
+Conversation history lives in a Durable Object. Pass `--id <id>` to continue
+one.
 
 ## Develop
 
@@ -29,7 +30,7 @@ Conversations are durable — pass `--id <id>` to continue one.
 pnpm dev
 ```
 
-The Assistant agent is served at `http://localhost:5174/agents/assistant` — see
+The Assistant agent is served at `http://localhost:5174/agents/assistant`. See
 `src/app.ts` for the route map and an example request. From the monorepo root,
 `pnpm dev` starts this Worker and the app Worker together.
 
@@ -44,4 +45,5 @@ pnpm deploy
 
 ## Learn more
 
-- [Flue docs](https://flueframework.com/docs/) — or `npx flue docs` from the terminal.
+- [Flue docs](https://flueframework.com/docs/), or run `npx flue docs` in the
+  terminal.
