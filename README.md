@@ -11,14 +11,67 @@ No public URL sits between them.
 `AGENTS.md` is the short version of this file, written for coding agents.
 `packages/app/AGENTS.md` and `packages/agents/AGENTS.md` cover those two packages.
 
+## Start here
+
+1. **Create a repository.** Click **Use this template** on GitHub, or clone this
+   repository and replace `.git` with an empty one.
+
+2. **Install.** Node.js 22.20.0 or later and pnpm are required. `.nvmrc` pins the
+   Node version, and `packageManager` in `package.json` pins pnpm, so Corepack
+   installs the right one.
+
+   ```sh
+   pnpm install
+   ```
+
+3. **Rename the two Workers.** One command rewrites both `wrangler.jsonc` files,
+   the three `package.json` names, the Worker names in the Markdown docs, and the
+   generated types. Then it deletes itself.
+
+   ```sh
+   pnpm init:template my-app          # Workers: my-app and my-app-agents
+   ```
+
+   It leaves the Assistant agent alone. Renaming an agent changes its Durable
+   Object class name, which needs a `renamed_classes` migration in
+   `packages/agents/wrangler.jsonc`.
+
+4. **Choose a model.** The default is Workers AI. It needs no API key, and it
+   bills the Cloudflare account you export below. For a keyed provider instead,
+   copy the env file and set `AGENT_MODEL`.
+
+   ```sh
+   cp packages/agents/.env.example packages/agents/.env
+   ```
+
+5. **Start both Workers.**
+
+   ```sh
+   pnpm dev
+   ```
+
+   App: <http://localhost:5173>. Agents: <http://localhost:5174>.
+
+For the default Workers AI model, export your account id in every shell that runs
+`pnpm dev` or a deploy. A keyed provider needs no Cloudflare account for
+`pnpm dev`. See [Which credential is required](#which-credential-is-required).
+
+```sh
+export CLOUDFLARE_ACCOUNT_ID=<your account id>     # npx wrangler whoami
+```
+
 ## Layout
 
 ```txt
 .
 ├─ AGENTS.md                       # short repo summary for coding agents
+├─ .github/workflows/ci.yml        # typecheck + build; needs no account
 ├─ .pi/settings.json               # project Pi settings; loads after trust
+├─ LICENSE                         # MIT
 ├─ skills-lock.json                # pinned skill sources for pnpm skills:sync
-├─ scripts/require-account.mjs     # blocks dev/deploy without an account
+├─ scripts/
+│  ├─ init-template.mjs            # renames the Workers; deletes itself
+│  └─ require-account.mjs          # blocks dev/deploy without an account
 ├─ packages/
 │  ├─ app/                         # RedwoodSDK Worker (port 5173, "app-starter")
 │  │  ├─ AGENTS.md                 # where this package's docs live
@@ -36,28 +89,17 @@ No public URL sits between them.
 
 ## Prerequisites
 
-- Node.js 22.20.0 or later. The `skills` CLI requires it.
-- pnpm.
-- A Cloudflare account (the Cloudflare target requires one).
+- Node.js 22.20.0 or later, pinned in `.nvmrc`. The `skills` CLI requires it.
+- pnpm, pinned by `packageManager` in `package.json`. Corepack reads that field.
+- A Cloudflare account when the model is Workers AI, or when you deploy. The
+  [quickstart](#start-here) covers both cases.
 
-## Setup
-
-```sh
-cp packages/agents/.env.example packages/agents/.env
-pnpm install
-pnpm skills:sync                     # restore .agents/skills, once per clone
-```
-
-Then give `pnpm dev` a credential for whichever model it runs.
-
-The default is the Workers AI fallback, which needs a Cloudflare account. Add
-this to your shell profile and open a new terminal:
+`.agents/skills/` is gitignored, so restore it once per clone to get the design
+and Cloudflare skills:
 
 ```sh
-export CLOUDFLARE_ACCOUNT_ID=<your account id>
+pnpm skills:sync
 ```
-
-Print your account id with `npx wrangler whoami`.
 
 To avoid needing a Cloudflare account at all, set `AGENT_MODEL` in
 `packages/agents/.env` to a keyed provider and add that provider's key. See
@@ -78,6 +120,7 @@ rest are plain Turbo tasks and need no account.
 | `pnpm deploy:app` | Deploys the app Worker. | yes |
 | `pnpm clean` | Removes `dist`, `.turbo`, and the Vite cache. | no |
 | `pnpm skills:sync` | Restores `.agents/skills` from `skills-lock.json`. | no |
+| `pnpm init:template <name>` | Renames both Workers for a new project. Run once, from a fresh clone. | no |
 
 To run one agent with no server, use the Flue CLI from its package:
 
@@ -342,15 +385,25 @@ pnpm deploy:agents
 pnpm deploy:app
 ```
 
-## Using this repo as a template
+## Continuous integration
 
-1. Add `export CLOUDFLARE_ACCOUNT_ID=<your account id>` to your shell profile.
-2. `cp packages/agents/.env.example packages/agents/.env`.
-3. Change `name` in both `wrangler.jsonc` files, and keep the app's
-   `services[].service` equal to the agents Worker name.
-4. Rename the Assistant agent if you want a different identity. A rename changes
-   the Durable Object class name, so append a `renamed_classes` migration.
-5. `pnpm skills:sync` restores the design and Cloudflare skills into the
-   gitignored `.agents/skills/`. Pi installs the packages declared in
-   `.pi/settings.json` on first load. The `.pi/prompts/` design commands need the
-   `hallmark` skill.
+`.github/workflows/ci.yml` runs on every push to `main` and on every pull
+request:
+
+```sh
+pnpm install --frozen-lockfile
+pnpm check
+pnpm build
+pnpm gen && git diff --exit-code packages/app/worker-configuration.d.ts
+```
+
+No step needs a Cloudflare account, so the workflow holds no secrets and works
+unchanged in a repository made from this template. The last step fails when the
+committed generated types no longer match the wrangler configs, so run `pnpm gen`
+after you edit either `wrangler.jsonc`.
+
+Run the same four commands locally before you push.
+
+## License
+
+MIT. See [LICENSE](LICENSE).

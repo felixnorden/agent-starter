@@ -14,7 +14,8 @@
     "deploy:agents": "node scripts/require-account.mjs deploy && turbo run deploy --filter=./packages/agents",
     "deploy:app": "node scripts/require-account.mjs deploy && turbo run deploy --filter=./packages/app",
     "clean": "rm -rf .turbo packages/*/.turbo packages/*/dist packages/app/node_modules/.vite",
-    "skills:sync": "skills experimental_install -y"
+    "skills:sync": "skills experimental_install -y",
+    "init:template": "node scripts/init-template.mjs"
   },
   "devDependencies": {
     "skills": "1.7.0",

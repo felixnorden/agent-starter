@@ -54,11 +54,17 @@ the account. See `README.md`.
 - Select a model with `AGENT_MODEL`, never by editing `assistant.ts`. Unset means
   the Workers AI fallback. Specifiers: <https://flueframework.com/models.json>.
 - The `service` in `packages/app/wrangler.jsonc` `services[]` must equal the
-  `name` in `packages/agents/wrangler.jsonc`. Renaming one breaks the other.
+  `name` in `packages/agents/wrangler.jsonc`. Renaming one breaks the other. A
+  fresh clone renames both at once with `pnpm init:template <name>`, which
+  rewrites the pair and then deletes itself. Never rename one by hand.
 - Adding or renaming an agent needs a Durable Object migration entry in
   `packages/agents/wrangler.jsonc`. A rename changes the class name.
 - `packages/app/worker-configuration.d.ts` is generated. Run `pnpm gen` after
   editing a `wrangler.jsonc`. Never edit it by hand.
+- CI runs `pnpm install --frozen-lockfile`, `pnpm check`, `pnpm build`, then
+  `pnpm gen` and `git diff --exit-code` on that generated file. No step needs an
+  account, so the workflow carries no secrets. Run the same commands before you
+  push.
 - Turbo filters the environment it hands to tasks. `CLOUDFLARE_ACCOUNT_ID` and
   `CLOUDFLARE_API_TOKEN` are listed in `turbo.json` `globalPassThroughEnv`.
   Removing them makes the guard pass while wrangler silently loses the account.
