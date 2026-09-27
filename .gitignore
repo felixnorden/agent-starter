@@ -56,6 +56,9 @@ dist
 # Vite cache
 .vite
 
+# Turborepo cache
+.turbo
+
 # Coverage directory used by tools like istanbul
 coverage
 
@@ -65,3 +68,10 @@ coverage
 
 # Wrangler
 .wrangler
+
+# Flue generated build inputs
+.flue-vite/
+.flue-vite.wrangler.jsonc
+
+# AI
+.agents
