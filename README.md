@@ -94,12 +94,8 @@ export CLOUDFLARE_ACCOUNT_ID=<your account id>     # npx wrangler whoami
 - A Cloudflare account when the model is Workers AI, or when you deploy. The
   [quickstart](#start-here) covers both cases.
 
-`.agents/skills/` is gitignored, so restore it once per clone to get the design
-and Cloudflare skills:
-
-```sh
-pnpm skills:sync
-```
+`.agents/skills/` is gitignored, so a clone has none of the design or Cloudflare
+skills. See [Skills](#skills) for the check and the restore command.
 
 To avoid needing a Cloudflare account at all, set `AGENT_MODEL` in
 `packages/agents/.env` to a keyed provider and add that provider's key. See
@@ -108,7 +104,7 @@ To avoid needing a Cloudflare account at all, set `AGENT_MODEL` in
 ## Commands
 
 Commands that can reach Cloudflare run `scripts/require-account.mjs` first. The
-rest are plain Turbo tasks and need no account.
+rest need no account.
 
 | Command | Does | Needs an account |
 | --- | --- | --- |
@@ -120,6 +116,7 @@ rest are plain Turbo tasks and need no account.
 | `pnpm deploy:app` | Deploys the app Worker. | yes |
 | `pnpm clean` | Removes `dist`, `.turbo`, and the Vite cache. | no |
 | `pnpm skills:sync` | Restores `.agents/skills` from `skills-lock.json`. | no |
+| `pnpm skills:check` | Fails when a locked skill is missing from `.agents/skills`. | no |
 | `pnpm init:template <name>` | Renames both Workers for a new project. Run once, from a fresh clone. | no |
 
 To run one agent with no server, use the Flue CLI from its package:
@@ -131,19 +128,23 @@ pnpm --filter ./packages/agents exec flue run src/agents/assistant.ts --message 
 ## Skills
 
 `.agents/` is gitignored and `skills-lock.json` is committed, so a fresh clone
-has the lock file and none of the skills. Restore them once after cloning:
+has the lock file and none of the skills. Check first, then restore only when
+something is missing:
 
 ```sh
-pnpm skills:sync
+pnpm skills:check     # exits 1 and names what is missing
+pnpm skills:sync      # only when the check fails
 ```
 
 The restore is expensive. It clones one GitHub repository per skill and submits
 each one to third-party security scanners, so five skills took over a minute in
 testing. It deliberately does **not** run on `pnpm install`, so installs stay
-fast and work offline.
+fast and work offline. That is why `skills:check` exists: it is cheap, and it
+keeps the expensive restore out of the common case.
 
-`skills` is a devDependency, so its version is pinned in the lockfile. Pi
-discovers `.agents/skills/` by itself, so nothing else is required.
+`skills` is a devDependency, so its version is pinned and `pnpm skills:sync`
+needs no global install. Pi discovers `.agents/skills/` by itself, so nothing
+else is required.
 
 ## Environment
 
