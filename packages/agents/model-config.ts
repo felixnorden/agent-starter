@@ -16,61 +16,61 @@
  * `AGENT_MODEL` is read from the process environment first, then from this
  * package's `.env`.
  */
-import { existsSync, readFileSync } from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const packageRoot = path.dirname(fileURLToPath(import.meta.url));
-const envPath = path.join(packageRoot, '.env');
+const envPath = path.join(packageRoot, ".env");
 
 /** Workers AI runs on the Worker's own account, so it needs no API key. */
-export const WORKERS_AI_PROVIDER = 'cloudflare';
+export const WORKERS_AI_PROVIDER = "cloudflare";
 
 /** The credential each provider needs. */
 const PROVIDER_CREDENTIALS: Record<string, string> = {
-	[WORKERS_AI_PROVIDER]: 'CLOUDFLARE_ACCOUNT_ID',
-	openrouter: 'OPENROUTER_API_KEY',
-	opencode: 'OPENCODE_API_KEY',
-	'opencode-go': 'OPENCODE_API_KEY',
-	anthropic: 'ANTHROPIC_API_KEY',
-	openai: 'OPENAI_API_KEY',
-	gemini: 'GEMINI_API_KEY',
-	groq: 'GROQ_API_KEY',
+  [WORKERS_AI_PROVIDER]: "CLOUDFLARE_ACCOUNT_ID",
+  openrouter: "OPENROUTER_API_KEY",
+  opencode: "OPENCODE_API_KEY",
+  "opencode-go": "OPENCODE_API_KEY",
+  anthropic: "ANTHROPIC_API_KEY",
+  openai: "OPENAI_API_KEY",
+  gemini: "GEMINI_API_KEY",
+  groq: "GROQ_API_KEY",
 };
 
 /** Parses a .env file into a flat object. Comments and blanks are ignored. */
 function readEnvFile(): Record<string, string> {
-	if (!existsSync(envPath)) return {};
-	const values: Record<string, string> = {};
-	for (const line of readFileSync(envPath, 'utf8').split('\n')) {
-		const match = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/.exec(line);
-		if (!match) continue;
-		values[match[1]] = match[2].trim().replace(/^["']|["']$/g, '');
-	}
-	return values;
+  if (!existsSync(envPath)) return {};
+  const values: Record<string, string> = {};
+  for (const line of readFileSync(envPath, "utf8").split("\n")) {
+    const match = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/.exec(line);
+    if (!match) continue;
+    values[match[1]] = match[2].trim().replace(/^["']|["']$/g, "");
+  }
+  return values;
 }
 
 /** Reads `AGENT_MODEL`. An empty result means the Workers AI fallback. */
 export function resolveModel(): string {
-	const fromEnvironment = process.env.AGENT_MODEL?.trim();
-	if (fromEnvironment) return fromEnvironment;
-	return readEnvFile().AGENT_MODEL?.trim() ?? '';
+  const fromEnvironment = process.env.AGENT_MODEL?.trim();
+  if (fromEnvironment) return fromEnvironment;
+  return readEnvFile().AGENT_MODEL?.trim() ?? "";
 }
 
 /** The provider id from a `provider/model` specifier. */
 export function providerOf(model: string = resolveModel()): string {
-	if (!model) return WORKERS_AI_PROVIDER;
-	return model.split('/')[0];
+  if (!model) return WORKERS_AI_PROVIDER;
+  return model.split("/")[0];
 }
 
 /** True when this configuration reaches Cloudflare for inference. */
 export function usesWorkersAi(model: string = resolveModel()): boolean {
-	return providerOf(model) === WORKERS_AI_PROVIDER;
+  return providerOf(model) === WORKERS_AI_PROVIDER;
 }
 
 /** The env var name this configuration needs, or null when none is known. */
 export function requiredCredential(model: string = resolveModel()): string | null {
-	return PROVIDER_CREDENTIALS[providerOf(model)] ?? null;
+  return PROVIDER_CREDENTIALS[providerOf(model)] ?? null;
 }
 
 /**
@@ -79,7 +79,7 @@ export function requiredCredential(model: string = resolveModel()): string | nul
  * because nothing loads a repo-root env file.
  */
 export function hasCredential(name: string): boolean {
-	if (process.env[name]?.trim()) return true;
-	if (name === 'CLOUDFLARE_ACCOUNT_ID') return false;
-	return Boolean(readEnvFile()[name]);
+  if (process.env[name]?.trim()) return true;
+  if (name === "CLOUDFLARE_ACCOUNT_ID") return false;
+  return Boolean(readEnvFile()[name]);
 }

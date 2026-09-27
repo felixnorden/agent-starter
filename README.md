@@ -68,6 +68,8 @@ export CLOUDFLARE_ACCOUNT_ID=<your account id>     # npx wrangler whoami
 ├─ .github/workflows/ci.yml        # typecheck + build; needs no account
 ├─ .pi/settings.json               # project Pi settings; loads after trust
 ├─ LICENSE                         # MIT
+├─ oxfmt.config.ts                 # formatter config; shared by both packages
+├─ oxlint.config.ts                # linter config; shared by both packages
 ├─ skills-lock.json                # pinned skill sources for pnpm skills:sync
 ├─ scripts/
 │  ├─ init-template.mjs            # renames the Workers; deletes itself
@@ -106,18 +108,21 @@ To avoid needing a Cloudflare account at all, set `AGENT_MODEL` in
 Commands that can reach Cloudflare run `scripts/require-account.mjs` first. The
 rest need no account.
 
-| Command | Does | Needs an account |
-| --- | --- | --- |
-| `pnpm dev` | Starts both Workers. App on 5173, agents on 5174. | yes |
-| `pnpm gen` | Regenerates `packages/app/worker-configuration.d.ts`. | no |
-| `pnpm build` | Builds both Workers into `packages/*/dist`. | no |
-| `pnpm check` | Typechecks both packages. | no |
-| `pnpm deploy:agents` | Deploys the agents Worker. | yes |
-| `pnpm deploy:app` | Deploys the app Worker. | yes |
-| `pnpm clean` | Removes `dist`, `.turbo`, and the Vite cache. | no |
-| `pnpm skills:sync` | Restores `.agents/skills` from `skills-lock.json`. | no |
-| `pnpm skills:check` | Fails when a locked skill is missing from `.agents/skills`. | no |
-| `pnpm init:template <name>` | Renames both Workers for a new project. Run once, from a fresh clone. | no |
+| Command                     | Does                                                                  | Needs an account |
+| --------------------------- | --------------------------------------------------------------------- | ---------------- |
+| `pnpm dev`                  | Starts both Workers. App on 5173, agents on 5174.                     | yes              |
+| `pnpm gen`                  | Regenerates `packages/app/worker-configuration.d.ts`.                 | no               |
+| `pnpm build`                | Builds both Workers into `packages/*/dist`.                           | no               |
+| `pnpm check`                | Typechecks, lints, and format-checks the repo.                        | no               |
+| `pnpm lint`                 | Lints both packages and the root files with oxlint.                   | no               |
+| `pnpm fmt`                  | Rewrites both packages and the root files with oxfmt.                 | no               |
+| `pnpm fmt:check`            | Fails when a file is not formatted.                                   | no               |
+| `pnpm deploy:agents`        | Deploys the agents Worker.                                            | yes              |
+| `pnpm deploy:app`           | Deploys the app Worker.                                               | yes              |
+| `pnpm clean`                | Removes `dist`, `.turbo`, and the Vite cache.                         | no               |
+| `pnpm skills:sync`          | Restores `.agents/skills` from `skills-lock.json`.                    | no               |
+| `pnpm skills:check`         | Fails when a locked skill is missing from `.agents/skills`.           | no               |
+| `pnpm init:template <name>` | Renames both Workers for a new project. Run once, from a fresh clone. | no               |
 
 To run one agent with no server, use the Flue CLI from its package:
 
@@ -150,11 +155,11 @@ else is required.
 `packages/agents/.env` is the only env file. It holds the Worker runtime
 variables, and Vite loads it for `pnpm dev` and `flue run`.
 
-| Variable | Purpose |
-| --- | --- |
-| `AGENT_MODEL` | Which model the agent uses. Unset means the Workers AI fallback. |
-| `OPENROUTER_API_KEY` | Key for an `openrouter/...` model. |
-| `OPENCODE_API_KEY` | Key for `opencode/...` and `opencode-go/...`. |
+| Variable             | Purpose                                                          |
+| -------------------- | ---------------------------------------------------------------- |
+| `AGENT_MODEL`        | Which model the agent uses. Unset means the Workers AI fallback. |
+| `OPENROUTER_API_KEY` | Key for an `openrouter/...` model.                               |
+| `OPENCODE_API_KEY`   | Key for `opencode/...` and `opencode-go/...`.                    |
 
 It is gitignored and ships a committed `.example`.
 
@@ -164,12 +169,12 @@ The requirement follows the configured model. `pnpm dev` and the `deploy:*`
 scripts run `scripts/require-account.mjs` first, and it exits with an error when
 the value that model needs is missing.
 
-| `AGENT_MODEL` | Required |
-| --- | --- |
-| unset, or `cloudflare/...` | `CLOUDFLARE_ACCOUNT_ID`, exported in your shell |
-| `openrouter/...` | `OPENROUTER_API_KEY` |
-| `opencode/...`, `opencode-go/...` | `OPENCODE_API_KEY` |
-| `anthropic/...`, `openai/...`, `gemini/...`, `groq/...` | the matching key |
+| `AGENT_MODEL`                                           | Required                                        |
+| ------------------------------------------------------- | ----------------------------------------------- |
+| unset, or `cloudflare/...`                              | `CLOUDFLARE_ACCOUNT_ID`, exported in your shell |
+| `openrouter/...`                                        | `OPENROUTER_API_KEY`                            |
+| `opencode/...`, `opencode-go/...`                       | `OPENCODE_API_KEY`                              |
+| `anthropic/...`, `openai/...`, `gemini/...`, `groq/...` | the matching key                                |
 
 The two `deploy:*` scripts always require the Cloudflare account, because the
 deploy itself reaches Cloudflare whatever the model is. A keyed provider needs
@@ -273,13 +278,38 @@ never in the HTTP response.
 
 ```sh
 pnpm build        # builds both Workers into packages/*/dist
-pnpm check        # tsc in both packages
+pnpm check        # tsc, oxlint, and oxfmt --check across the repo
 pnpm gen          # regenerates packages/app/worker-configuration.d.ts
 pnpm clean        # removes dist, .turbo, and the Vite cache
 ```
 
 Run `pnpm gen` after changing either `wrangler.jsonc`. It rewrites the generated
 bindings type, which is what makes `env.AGENT` typecheck.
+
+## Formatting and linting
+
+Both packages use [oxfmt](https://oxc.rs/docs/guide/usage/formatter) to format
+and [oxlint](https://oxc.rs/docs/guide/usage/linter) to lint. One config per
+tool sits at the repo root. A package script resolves the binary from the root
+`devDependencies`, and each tool walks up from the package directory to find
+the config.
+
+```sh
+pnpm fmt           # rewrites files in place
+pnpm fmt:check     # fails when a file is not formatted
+pnpm lint          # reports lint findings
+```
+
+`oxfmt.config.ts` ignores `worker-configuration.d.ts`. The generator owns that
+file, and formatting it makes the `pnpm gen` diff in CI fail.
+
+The three commands cover the root files as well. Each one runs the tool once at
+the repo root with `!packages/**` excluded, then hands the two packages to turbo
+with `turbo run <task>`.
+
+Turbo caches `lint` and `fmt:check`. Both config files are listed in
+`globalDependencies`, so a config edit invalidates the cache. `fmt` writes
+files, so it is never cached.
 
 ## How the app reaches the agents
 
@@ -319,14 +349,14 @@ grant project trust.
 
 `.pi/prompts/` holds slash commands. Run `/reload` after you add or edit one.
 
-| Command | Does |
-| --- | --- |
-| `/design "<brief>"` | Builds a new page with the Hallmark skill. |
-| `/refresh-design <target>` | Redesigns an existing page in place. Preserves content and routes. |
-| `/audit-design <target>` | Scores a page against the Hallmark slop test. Read-only. |
-| `/study-design <url or image>` | Extracts design DNA from a reference. |
-| `/design-component <component>` | Builds one component with the 8-state demo wrapper. |
-| `/lock-design` | Writes a portable `design.md` design system. |
+| Command                         | Does                                                               |
+| ------------------------------- | ------------------------------------------------------------------ |
+| `/design "<brief>"`             | Builds a new page with the Hallmark skill.                         |
+| `/refresh-design <target>`      | Redesigns an existing page in place. Preserves content and routes. |
+| `/audit-design <target>`        | Scores a page against the Hallmark slop test. Read-only.           |
+| `/study-design <url or image>`  | Extracts design DNA from a reference.                              |
+| `/design-component <component>` | Builds one component with the 8-state demo wrapper.                |
+| `/lock-design`                  | Writes a portable `design.md` design system.                       |
 
 These commands load the `hallmark` skill. The skill lives in `.agents/skills/`,
 which is gitignored and machine-local. `skills-lock.json` records its source.
@@ -398,7 +428,8 @@ pnpm gen && git diff --exit-code packages/app/worker-configuration.d.ts
 ```
 
 No step needs a Cloudflare account, so the workflow holds no secrets and works
-unchanged in a repository made from this template. The last step fails when the
+unchanged in a repository made from this template. `pnpm check` runs `tsc`,
+`oxlint`, and `oxfmt --check` across the repo. The last step fails when the
 committed generated types no longer match the wrangler configs, so run `pnpm gen`
 after you edit either `wrangler.jsonc`.
 

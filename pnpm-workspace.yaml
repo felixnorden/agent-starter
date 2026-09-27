@@ -17,7 +17,7 @@ overrides:
 #         install scripts only print donation messages or run a prepare step
 #         that is meant for source checkouts.
 allowBuilds:
-  '@google/genai': false
+  "@google/genai": false
   core-js-pure: false
   esbuild: true
   protobufjs: false

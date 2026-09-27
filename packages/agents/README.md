@@ -37,6 +37,17 @@ The Assistant agent is served at `http://localhost:5174/agents/assistant`. See
 `packages/app` calls this Worker through the `AGENT` service binding, with no
 public URL involved. Deploy this Worker before the app Worker.
 
+## Lint and format
+
+```sh
+pnpm lint          # oxlint, read-only
+pnpm fmt           # oxfmt, writes files
+pnpm fmt:check     # oxfmt, read-only
+```
+
+Both tools read the config at the monorepo root: `oxlint.config.ts` and
+`oxfmt.config.ts`.
+
 ## Deploy
 
 ```sh

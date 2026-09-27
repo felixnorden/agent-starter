@@ -1,13 +1,13 @@
 {
   "name": "@redwoodjs/starter",
   "version": "1.0.0",
-  "description": "A bare-bones RedwoodSDK starter",
-  "main": "index.js",
-  "type": "module",
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
   "private": true,
+  "description": "A bare-bones RedwoodSDK starter",
+  "keywords": [],
+  "license": "MIT",
+  "author": "",
+  "type": "module",
+  "main": "index.js",
   "scripts": {
     "build": "vite build",
     "dev": "vite dev",
@@ -21,7 +21,10 @@
     "generate": "rw-scripts ensure-env && wrangler types --include-runtime false",
     "check": "npm run generate && npm run types",
     "types": "tsc",
-    "check:types": "tsc"
+    "check:types": "tsc",
+    "lint": "oxlint .",
+    "fmt": "oxfmt .",
+    "fmt:check": "oxfmt --check ."
   },
   "dependencies": {
     "@flue/sdk": "^2.1.1",

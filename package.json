@@ -8,8 +8,11 @@
   "scripts": {
     "dev": "node scripts/require-account.mjs dev && turbo run dev",
     "build": "turbo run build",
-    "check": "turbo run check:types",
+    "check": "turbo run check:types lint fmt:check",
     "check:types": "turbo run check:types",
+    "lint": "oxlint . '!packages/**' && turbo run lint",
+    "fmt": "oxfmt . '!packages/**' && turbo run fmt",
+    "fmt:check": "oxfmt --check . '!packages/**' && turbo run fmt:check",
     "gen": "turbo run generate",
     "deploy:agents": "node scripts/require-account.mjs deploy && turbo run deploy --filter=./packages/agents",
     "deploy:app": "node scripts/require-account.mjs deploy && turbo run deploy --filter=./packages/app",
@@ -19,6 +22,8 @@
     "init:template": "node scripts/init-template.mjs"
   },
   "devDependencies": {
+    "oxfmt": "0.70.0",
+    "oxlint": "1.85.0",
     "skills": "1.7.0",
     "turbo": "^2.11.4"
   },

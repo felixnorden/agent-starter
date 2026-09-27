@@ -18,8 +18,7 @@ const packages = [
     path: "packages/app",
     role: (
       <>
-        RedwoodSDK Worker. Serves the HTML and forwards chat over{" "}
-        <Mono>env.AGENT_APP</Mono>.
+        RedwoodSDK Worker. Serves the HTML and forwards chat over <Mono>env.AGENT_APP</Mono>.
       </>
     ),
   },
@@ -42,8 +41,7 @@ const commands = [
     term: "pnpm gen",
     does: (
       <>
-        Rewrite <Mono>worker-configuration.d.ts</Mono> after a{" "}
-        <Mono>wrangler.jsonc</Mono> change.
+        Rewrite <Mono>worker-configuration.d.ts</Mono> after a <Mono>wrangler.jsonc</Mono> change.
       </>
     ),
   },
@@ -106,19 +104,11 @@ const cliRun =
 const Row = ({ term, children }: { term: string; children: ReactNode }) => (
   <div className="grid gap-1 border-t border-border py-4 sm:grid-cols-[12rem_minmax(0,1fr)] sm:gap-8">
     <dt className="font-mono text-sm text-foreground">{term}</dt>
-    <dd className="max-w-[60ch] text-base leading-relaxed text-muted-foreground">
-      {children}
-    </dd>
+    <dd className="max-w-[60ch] text-base leading-relaxed text-muted-foreground">{children}</dd>
   </div>
 );
 
-const Section = ({
-  title,
-  children,
-}: {
-  title: string;
-  children: ReactNode;
-}) => (
+const Section = ({ title, children }: { title: string; children: ReactNode }) => (
   <section className="min-w-0">
     <h2 className="font-serif text-2xl font-semibold tracking-tight text-foreground sm:text-[1.75rem]">
       {title}
@@ -130,8 +120,7 @@ const Section = ({
 const linkClass =
   "text-brand underline decoration-brand/35 underline-offset-4 transition-colors duration-150 ease-out hover:decoration-brand active:text-foreground";
 
-const navLinkClass =
-  "text-foreground transition-colors duration-150 ease-out hover:text-brand";
+const navLinkClass = "text-foreground transition-colors duration-150 ease-out hover:text-brand";
 
 const preClass =
   "mt-4 max-w-full overflow-x-auto rounded-md bg-code px-5 py-4 font-mono text-sm leading-relaxed text-code-foreground";
@@ -140,13 +129,8 @@ export const Starter = () => {
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="mx-auto flex w-full max-w-5xl items-center justify-between gap-6 px-6 py-6 sm:px-10">
-        <span className="font-serif text-base font-semibold tracking-tight">
-          Agent Starter App
-        </span>
-        <nav
-          aria-label="Primary"
-          className="flex items-center gap-6 text-sm font-medium"
-        >
+        <span className="font-serif text-base font-semibold tracking-tight">Agent Starter App</span>
+        <nav aria-label="Primary" className="flex items-center gap-6 text-sm font-medium">
           <a href="https://docs.rwsdk.com" className={navLinkClass}>
             Docs ↗
           </a>
@@ -170,9 +154,8 @@ export const Starter = () => {
         <div className="mx-auto w-full max-w-5xl px-6 sm:px-10">
           <div className="grid gap-14 pt-14 pb-20">
             <p className="max-w-[62ch] min-w-0 text-lg leading-relaxed text-foreground">
-              A RedwoodSDK Worker serves the HTML. A Flue Worker owns each
-              conversation as a Durable Object. A service binding joins them, so
-              no public URL sits between.
+              A RedwoodSDK Worker serves the HTML. A Flue Worker owns each conversation as a Durable
+              Object. A service binding joins them, so no public URL sits between.
             </p>
 
             <Section title="Packages">
@@ -194,9 +177,8 @@ export const Starter = () => {
                 ))}
               </dl>
               <p className="mt-6 max-w-[62ch] text-base leading-relaxed text-muted-foreground">
-                <Mono>pnpm dev</Mono> needs a Cloudflare account for the default
-                Workers AI model. A keyed provider in{" "}
-                <Mono>packages/agents/.env</Mono> needs no account.
+                <Mono>pnpm dev</Mono> needs a Cloudflare account for the default Workers AI model. A
+                keyed provider in <Mono>packages/agents/.env</Mono> needs no account.
               </p>
               <p className="mt-6 max-w-[62ch] text-base leading-relaxed text-muted-foreground">
                 Run one agent with no server:
@@ -211,9 +193,8 @@ export const Starter = () => {
 
             <Section title="Talk to the agent">
               <p className="max-w-[62ch] text-base leading-relaxed text-muted-foreground">
-                The app forwards chat over <Mono>env.AGENT_APP</Mono>. Reuse one
-                conversation id to continue a conversation. A new id starts an
-                agent with empty history.
+                The app forwards chat over <Mono>env.AGENT_APP</Mono>. Reuse one conversation id to
+                continue a conversation. A new id starts an agent with empty history.
               </p>
               <pre className={preClass}>
                 <code>
@@ -223,8 +204,8 @@ export const Starter = () => {
               </pre>
               <p className="mt-4 max-w-[62ch] text-base leading-relaxed text-muted-foreground">
                 <Mono>send()</Mono> returns an admission, not the reply. Call{" "}
-                <Mono>read(admission)</Mono> to wait for the settlement, or{" "}
-                <Mono>history()</Mono> for the snapshot.
+                <Mono>read(admission)</Mono> to wait for the settlement, or <Mono>history()</Mono>{" "}
+                for the snapshot.
               </p>
             </Section>
 
@@ -235,10 +216,7 @@ export const Starter = () => {
                     key={doc.href}
                     className="grid gap-1 border-t border-border py-4 sm:grid-cols-[12rem_minmax(0,1fr)] sm:gap-8"
                   >
-                    <a
-                      href={doc.href}
-                      className={`font-mono text-sm ${linkClass}`}
-                    >
+                    <a href={doc.href} className={`font-mono text-sm ${linkClass}`}>
                       {doc.label} ↗
                     </a>
                     <span className="max-w-[60ch] text-base leading-relaxed text-muted-foreground">
@@ -254,14 +232,11 @@ export const Starter = () => {
 
       <footer className="mx-auto w-full max-w-5xl px-6 pb-12 sm:px-10">
         <div className="grid gap-3 border-t border-border pt-6 sm:grid-cols-[12rem_minmax(0,1fr)] sm:gap-8">
-          <p className="font-serif text-sm font-semibold tracking-tight">
-            Agent Starter App
-          </p>
+          <p className="font-serif text-sm font-semibold tracking-tight">Agent Starter App</p>
           <div>
             <p className="max-w-[60ch] text-sm leading-relaxed text-muted-foreground">
-              Local conversation state lives in{" "}
-              <Mono>packages/agents/.wrangler/state</Mono>. Delete it to reset
-              conversations.
+              Local conversation state lives in <Mono>packages/agents/.wrangler/state</Mono>. Delete
+              it to reset conversations.
             </p>
             <p className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm font-medium">
               <a href="https://docs.rwsdk.com" className={linkClass}>
@@ -270,10 +245,7 @@ export const Starter = () => {
               <a href="https://flueframework.com" className={linkClass}>
                 Flue docs
               </a>
-              <a
-                href="https://developers.cloudflare.com/workers/"
-                className={linkClass}
-              >
+              <a href="https://developers.cloudflare.com/workers/" className={linkClass}>
                 Workers docs
               </a>
             </p>

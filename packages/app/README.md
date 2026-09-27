@@ -30,6 +30,9 @@ pnpm gen     # regenerates worker-configuration.d.ts
 Running this package's own `dev` script serves the app alone, so `AGENT`
 stays unresolved unless the agents Worker is already running.
 
+The root `pnpm lint`, `pnpm fmt`, and `pnpm fmt:check` scripts reach this
+package too. They read the root `oxlint.config.ts` and `oxfmt.config.ts`.
+
 ## Notable files
 
 - `src/worker.tsx`: the route map. Mounts `/api/agent/:conversationId`.

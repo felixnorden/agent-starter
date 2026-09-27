@@ -14,17 +14,20 @@ or `packages/agents/AGENTS.md` before changing that package.
 Run these from the repo root. Commands that can reach Cloudflare run
 `scripts/require-account.mjs` first.
 
-| Command | Does | Needs an account |
-| --- | --- | --- |
-| `pnpm dev` | Starts both Workers. App on 5173, agents on 5174. | only for Workers AI |
-| `pnpm gen` | Rewrites `packages/app/worker-configuration.d.ts`. | no |
-| `pnpm build` | Builds both Workers into `packages/*/dist`. | no |
-| `pnpm check` | Typechecks both packages. | no |
-| `pnpm deploy:agents` | Deploys the agents Worker. Run it before the app. | yes |
-| `pnpm deploy:app` | Deploys the app Worker. | yes |
-| `pnpm clean` | Removes `dist`, `.turbo`, and the Vite cache. | no |
-| `pnpm skills:sync` | Restores `.agents/skills` from `skills-lock.json`. | no |
-| `pnpm skills:check` | Fails when a locked skill is not restored. Local only. | no |
+| Command              | Does                                                   | Needs an account    |
+| -------------------- | ------------------------------------------------------ | ------------------- |
+| `pnpm dev`           | Starts both Workers. App on 5173, agents on 5174.      | only for Workers AI |
+| `pnpm gen`           | Rewrites `packages/app/worker-configuration.d.ts`.     | no                  |
+| `pnpm build`         | Builds both Workers into `packages/*/dist`.            | no                  |
+| `pnpm check`         | Typechecks, lints, and format-checks the repo.         | no                  |
+| `pnpm lint`          | Lints both packages and the root files with oxlint.    | no                  |
+| `pnpm fmt`           | Rewrites both packages and the root files with oxfmt.  | no                  |
+| `pnpm fmt:check`     | Fails when a file is not formatted.                    | no                  |
+| `pnpm deploy:agents` | Deploys the agents Worker. Run it before the app.      | yes                 |
+| `pnpm deploy:app`    | Deploys the app Worker.                                | yes                 |
+| `pnpm clean`         | Removes `dist`, `.turbo`, and the Vite cache.          | no                  |
+| `pnpm skills:sync`   | Restores `.agents/skills` from `skills-lock.json`.     | no                  |
+| `pnpm skills:check`  | Fails when a locked skill is not restored. Local only. | no                  |
 
 To run one agent with no server, use the CLI inside its package:
 
@@ -103,9 +106,15 @@ A fresh clone needs four things. Do them in this order, from the repo root.
 - `packages/app/worker-configuration.d.ts` is generated. Run `pnpm gen` after
   editing a `wrangler.jsonc`. Never edit it by hand.
 - CI runs `pnpm install --frozen-lockfile`, `pnpm check`, `pnpm build`, then
-  `pnpm gen` and `git diff --exit-code` on that generated file. No step needs an
-  account, so the workflow carries no secrets. Run the same commands before you
-  push.
+  `pnpm gen` and `git diff --exit-code` on that generated file. `pnpm check`
+  includes `oxlint` and `oxfmt --check`. No step needs an account, so the
+  workflow carries no secrets. Run the same commands before you push.
+- The root `oxfmt.config.ts` and `oxlint.config.ts` are the only formatting and
+  lint configs; both packages share them. Package scripts call the binaries from
+  the root `devDependencies`, and the root scripts exclude `packages/**` so the
+  two halves do not overlap. Add a rule or an ignore pattern in the root config,
+  never in a package. Turbo lists both files in `globalDependencies`, so
+  removing that entry serves stale cached results after a config edit.
 - Turbo filters the environment it hands to tasks. `CLOUDFLARE_ACCOUNT_ID` and
   `CLOUDFLARE_API_TOKEN` are listed in `turbo.json` `globalPassThroughEnv`.
   Removing them makes the guard pass while wrangler silently loses the account.

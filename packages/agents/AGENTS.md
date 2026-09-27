@@ -22,5 +22,11 @@ The commands below run from inside `packages/agents`.
 - `pnpm run dev` — start the dev server.
 - `pnpm run deploy` — build and deploy the Worker.
 - `pnpm run check:types` — typecheck.
+- `pnpm run lint` — lint with oxlint.
+- `pnpm run fmt` — rewrite files with oxfmt.
+- `pnpm run fmt:check` — fail when a file is not formatted.
 - `npx flue docs search <query>` — search the Flue docs from the terminal (then `flue docs read <path>`).
 - `npx flue add` — list blueprints for adding channels, sandboxes, and databases.
+
+The lint and format commands read `oxlint.config.ts` and `oxfmt.config.ts` at
+the monorepo root.

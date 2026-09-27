@@ -25,12 +25,12 @@ for (const r of rules) console.log(r.name, '|', r.globs.join(', '));
 
 Print a rule's markdown with `console.log(r.rule)`.
 
-| Rule | Read it when |
-| --- | --- |
-| `rwsdk-react` | Writing components. Covers server vs client components and server functions. |
-| `rwsdk-request-response` | Handling requests and building responses. |
-| `rwsdk-interruptors` | Guarding or redirecting requests in `worker.tsx`. |
-| `rwsdk-middleware` | Writing middleware. |
+| Rule                     | Read it when                                                                 |
+| ------------------------ | ---------------------------------------------------------------------------- |
+| `rwsdk-react`            | Writing components. Covers server vs client components and server functions. |
+| `rwsdk-request-response` | Handling requests and building responses.                                    |
+| `rwsdk-interruptors`     | Guarding or redirecting requests in `worker.tsx`.                            |
+| `rwsdk-middleware`       | Writing middleware.                                                          |
 
 More RedwoodSDK sources:
 
@@ -40,13 +40,13 @@ More RedwoodSDK sources:
 
 ### Everything else
 
-| Path | Holds |
-| --- | --- |
-| `worker-configuration.d.ts` | **Generated.** What `env` contains, such as `AGENT`. Never edit by hand — run `pnpm gen`. |
-| `node_modules/@flue/sdk/dist/index.d.mts` | The agent client: `createFlueClient`, `send`, `read`, `history`, `observe`, `abort`. |
-| `node_modules/wrangler/config-schema.json` | Every valid `wrangler.jsonc` key. |
-| `node_modules/@cloudflare/workers-types/` | Worker runtime globals. |
-| `../../.agents/skills/` | Cloudflare skills. Gitignored and machine-local: `wrangler`, `durable-objects`, `cloudflare`. |
+| Path                                       | Holds                                                                                         |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------- |
+| `worker-configuration.d.ts`                | **Generated.** What `env` contains, such as `AGENT`. Never edit by hand — run `pnpm gen`.     |
+| `node_modules/@flue/sdk/dist/index.d.mts`  | The agent client: `createFlueClient`, `send`, `read`, `history`, `observe`, `abort`.          |
+| `node_modules/wrangler/config-schema.json` | Every valid `wrangler.jsonc` key.                                                             |
+| `node_modules/@cloudflare/workers-types/`  | Worker runtime globals.                                                                       |
+| `../../.agents/skills/`                    | Cloudflare skills. Gitignored and machine-local: `wrangler`, `durable-objects`, `cloudflare`. |
 
 ## How the code is arranged
 
