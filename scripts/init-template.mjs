@@ -77,7 +77,7 @@ function swap(file, pairs) {
   const before = read(file);
   let after = before;
   // Longest first: the agents Worker name contains the app Worker name.
-  for (const [from, to] of pairs.sort((a, b) => b[0].length - a[0].length)) {
+  for (const [from, to] of pairs.toSorted((a, b) => b[0].length - a[0].length)) {
     after = after.split(from).join(to);
   }
   if (after === before) return;

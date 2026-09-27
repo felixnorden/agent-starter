@@ -7,4 +7,6 @@
 //
 // https://flueframework.com/docs/guide/cloudflare-target/#extending-cloudflarets-entrypoint
 
+// `export {}` marks this file as a module. It has no exports yet by design.
+// oxlint-disable-next-line unicorn/require-module-specifiers
 export {};

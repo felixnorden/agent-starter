@@ -11,10 +11,6 @@ export type AppContext = {};
 
 export default defineApp([
   setCommonHeaders(),
-  ({ ctx }) => {
-    // setup ctx here
-    ctx;
-  },
   // Sends one message to the Flue `Assistant` agent over the AGENT service
   // binding. The agent owns the conversation, so reuse the same
   // :conversationId to continue one.
