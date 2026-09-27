@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A new push to the same branch cancels the run in progress.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # Reads the pnpm version from "packageManager" in package.json, so the
+      # pin lives in one place. Caches the pnpm store.
+      - uses: pnpm/action-setup@v6
+        with:
+          cache: true
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - run: pnpm install --frozen-lockfile
+
+      # No step here needs a Cloudflare account, so this workflow carries no
+      # secrets and works unchanged in a repository made from this template.
+      - name: Typecheck
+        run: pnpm check
+
+      - name: Build
+        run: pnpm build
+
+      # `pnpm gen` rewrites packages/app/worker-configuration.d.ts from the
+      # wrangler configs. A diff means the committed types are stale.
+      - name: Generated types are current
+        run: |
+          pnpm gen
+          git diff --exit-code packages/app/worker-configuration.d.ts

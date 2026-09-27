@@ -2,13 +2,9 @@
   "name": "app-starter",
   "version": "0.0.0",
   "private": true,
+  "description": "Monorepo: RedwoodSDK app plus Flue agents, wired together with a Cloudflare service binding",
   "license": "MIT",
   "type": "module",
-  "packageManager": "pnpm@12.6.0",
-  "description": "Monorepo: RedwoodSDK app plus Flue agents, wired together with a Cloudflare service binding",
-  "engines": {
-    "node": ">=22.20.0"
-  },
   "scripts": {
     "dev": "node scripts/require-account.mjs dev && turbo run dev",
     "build": "turbo run build",
@@ -23,5 +19,9 @@
   "devDependencies": {
     "skills": "1.7.0",
     "turbo": "^2.11.4"
-  }
+  },
+  "engines": {
+    "node": ">=22.20.0"
+  },
+  "packageManager": "pnpm@12.6.0"
 }
