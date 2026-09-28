@@ -30,13 +30,38 @@ pnpm gen     # regenerates worker-configuration.d.ts
 Running this package's own `dev` script serves the app alone, so `AGENT`
 stays unresolved unless the agents Worker is already running.
 
+## Talk to the agent
+
+```sh
+# admits the message: 202 with a Flue admission receipt, not the reply
+curl -X POST http://localhost:5173/api/agent/demo-1 \
+  -H 'content-type: application/json' \
+  -d '{"message":"Say hi in three words."}'
+
+# reads the conversation back over the same binding
+curl "http://localhost:5173/api/agent/demo-1?view=history"
+curl -N "http://localhost:5173/api/agent/demo-1?view=updates&offset=-1&live=sse"
+```
+
+Add `?wait=1` to the POST to hold it until the turn settles and answer with the
+reply. Reads accept `view=history` or `view=updates`, plus `offset` and
+`live=long-poll|sse`; any other value, and any unknown parameter, answers 400.
+
+An admission's `streamUrl` names `agents.internal`, an origin that only the
+`AGENT` binding resolves. Read through this Worker, or the agents Worker on
+5174, never that URL.
+
 The root `pnpm lint`, `pnpm fmt`, and `pnpm fmt:check` scripts reach this
 package too. They read the root `oxlint.config.ts` and `oxfmt.config.ts`.
 
 ## Notable files
 
-- `src/worker.tsx`: the route map. Mounts `/api/agent/:conversationId`.
+- `src/worker.tsx`: the route map. `/api/agent/:conversationId` carries both
+  methods: POST admits a message (202, or the awaited reply with `?wait=1`), GET
+  proxies the Flue read surface over the `AGENT` binding.
 - `src/app/`: pages, the HTML document, and shared response headers.
+- `src/lib/agent-message.ts`, `src/lib/agent-query.ts`: the Effect Schemas for
+  the route's body and query strings.
 - `src/app/styles.css`: global Tailwind v4 stylesheet and `@theme` design
   tokens. `document.tsx` links it as `./styles.css?url`.
 - `wrangler.jsonc`: declares the `AGENT` service binding.

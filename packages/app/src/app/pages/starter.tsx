@@ -18,7 +18,7 @@ const packages = [
     path: "packages/app",
     role: (
       <>
-        RedwoodSDK Worker. Serves the HTML and forwards chat over <Mono>env.AGENT_APP</Mono>.
+        RedwoodSDK Worker. Serves the HTML and forwards chat over <Mono>env.AGENT</Mono>.
       </>
     ),
   },
@@ -97,6 +97,10 @@ const docs = [
 const request = `curl -X POST http://localhost:5173/api/agent/demo-1 \\
   -H 'content-type: application/json' \\
   -d '{"message":"Tell me a joke."}'`;
+
+const readBack = `curl "http://localhost:5173/api/agent/demo-1?view=history"`;
+
+const liveRead = `curl -N "http://localhost:5173/api/agent/demo-1?view=updates&offset=-1&live=sse"`;
 
 const cliRun =
   'pnpm --filter ./packages/agents exec flue run src/agents/assistant.ts --message "Hi"';
@@ -193,7 +197,7 @@ export const Starter = () => {
 
             <Section title="Talk to the agent">
               <p className="max-w-[62ch] text-base leading-relaxed text-muted-foreground">
-                The app forwards chat over <Mono>env.AGENT_APP</Mono>. Reuse one conversation id to
+                The app forwards chat over <Mono>env.AGENT</Mono>. Reuse one conversation id to
                 continue a conversation. A new id starts an agent with empty history.
               </p>
               <pre className={preClass}>
@@ -203,9 +207,27 @@ export const Starter = () => {
                 </code>
               </pre>
               <p className="mt-4 max-w-[62ch] text-base leading-relaxed text-muted-foreground">
-                <Mono>send()</Mono> returns an admission, not the reply. Call{" "}
-                <Mono>read(admission)</Mono> to wait for the settlement, or <Mono>history()</Mono>{" "}
-                for the snapshot.
+                The POST answers 202 with an admission, not the reply. The reply lands in the
+                conversation's durable stream, so read it back on the same path — one snapshot, or
+                the live stream:
+              </p>
+              <pre className={preClass}>
+                <code>
+                  <span className="text-code-accent">$ </span>
+                  {readBack}
+                </code>
+              </pre>
+              <pre className={preClass}>
+                <code>
+                  <span className="text-code-accent">$ </span>
+                  {liveRead}
+                </code>
+              </pre>
+              <p className="mt-4 max-w-[62ch] text-base leading-relaxed text-muted-foreground">
+                Add <Mono>?wait=1</Mono> to hold the POST until the turn settles and answer with the
+                reply. That wait lasts the whole turn, so prefer the read route for a long one. The
+                admission's <Mono>streamUrl</Mono> names <Mono>agents.internal</Mono>, which only
+                the service binding resolves: never curl it.
               </p>
             </Section>
 

@@ -51,10 +51,17 @@ More RedwoodSDK sources:
 ## How the code is arranged
 
 - `src/worker.tsx` — `defineApp([...])`. Middleware and interruptors first, then
-  routes. `/api/agent/:conversationId` talks to the Assistant agent.
-- `src/lib/agent-message.ts` — the Effect Schema for that route's body. The
-  route returns 400 when its `decodeAgentMessage` effect fails.
-- `src/lib/agent-message.test.ts` — the test for that decoder.
+  routes. `/api/agent/:conversationId` carries both methods: POST admits a
+  message (202, or the awaited reply with `?wait=1`), GET proxies the Flue read
+  surface over the binding.
+- `src/lib/agent-message.ts` — the Effect Schema for the POST body. The route
+  returns 400 when its `decodeAgentMessage` Result fails.
+- `src/lib/agent-query.ts` — the Effect Schemas for the agent routes' query
+  strings, plus the `AgentReplyUnavailable` error and its `replyUnavailable`
+  mapper. Both decoders run with `onExcessProperty: "error"`, so the routes
+  accept exactly the parameters they document.
+- `src/lib/agent-message.test.ts`, `src/lib/agent-query.test.ts` — the tests for
+  those decoders.
 - `vitest.config.ts` — tests in the plain Node pool, with no Vite plugins.
 - `src/app/pages/starter.tsx` — the landing page. `src/app/document.tsx` — the HTML shell.
 - `src/app/styles.css` — global Tailwind stylesheet and design tokens.
@@ -83,7 +90,11 @@ Tailwind CSS v4 runs through `@tailwindcss/vite`.
 - Run `pnpm gen` after any `wrangler.jsonc` change. It rewrites
   `worker-configuration.d.ts`. It needs no Cloudflare account.
 - `send()` returns an admission, not the reply. Call `read(admission)` to await
-  the settlement and get the reply, or `history()` for the snapshot.
+  the settlement and get the reply, or `history()` for the snapshot. Without the
+  route's `?wait=1`, the POST answers 202 with the admission and returns.
+- Parse query strings with the `Schema`s in `src/lib/agent-query.ts`, never by
+  hand. A bad parameter then fails at the app edge with 400 before any hop, and
+  the query the route forwards is the one that passed.
 - The app reaches the agents Worker only through `env.AGENT`. The URL origin
   is a placeholder; only the pathname selects a route.
 - Reuse one `conversationId` to continue a conversation. A new id starts a new

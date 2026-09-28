@@ -317,12 +317,36 @@ curl -X POST http://localhost:5173/api/agent/demo-1 \
   -d '{"message":"Say hi in three words."}'
 ```
 
-The response is a Flue admission. Reuse `demo-1` to continue the same
-conversation. Read it back from the agents Worker:
+The response is a 202 Flue admission (`uid`, `submissionId`, `offset`,
+`streamUrl`), not the reply. The reply is written to the conversation's durable
+stream when the turn settles. Reuse `demo-1` to continue the same conversation.
+
+Read the conversation back on the same app path. The app proxies the Flue read
+surface over the binding:
 
 ```sh
-curl "http://localhost:5174/agents/assistant/demo-1?view=history"
+curl "http://localhost:5173/api/agent/demo-1?view=history"
 ```
+
+Follow it live, or hold the POST until the turn settles and answer with the
+reply:
+
+```sh
+curl -N "http://localhost:5173/api/agent/demo-1?view=updates&offset=-1&live=sse"
+curl -X POST "http://localhost:5173/api/agent/demo-1?wait=1" \
+  -H 'content-type: application/json' \
+  -d '{"message":"Say hi in three words."}'
+```
+
+`?wait=1` holds the connection for the whole turn, and the model can take
+minutes to answer. For a long turn, send without `wait` and read the reply from
+the stream. The admission's `streamUrl` names `agents.internal`, an origin that
+only the service binding resolves: read through the app, or through the agents
+Worker at <http://localhost:5174>, never that URL.
+
+Reads take the agents Worker's own parameters: `view=history` or `view=updates`,
+plus `offset` and `live=long-poll|sse`. Any other value, and any unknown
+parameter, answers 400.
 
 Talk to an agent without any server:
 
