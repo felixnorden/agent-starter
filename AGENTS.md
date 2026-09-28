@@ -9,6 +9,18 @@ Two Cloudflare Workers in one pnpm + Turborepo monorepo.
 Read `README.md` for full setup and architecture. Read `packages/app/AGENTS.md`
 or `packages/agents/AGENTS.md` before changing that package.
 
+## Learning more about Effect
+
+This repository uses the Effect Typescript library. `effect` is pinned in
+`pnpm-workspace.yaml` under `catalogs.effect` and installed in both packages,
+plus at the root so its source is reachable from here.
+
+Before writing any Effect code, first read `node_modules/effect/AGENTS.md`
+**completely**, and follow the links in the file when required.
+
+If you need to learn more about particular Effect apis and concepts that the
+guide doesn't cover, search through the source code in `node_modules/effect/src`.
+
 ## Commands
 
 Run these from the repo root. Commands that can reach Cloudflare run
@@ -19,7 +31,8 @@ Run these from the repo root. Commands that can reach Cloudflare run
 | `pnpm dev`           | Starts both Workers. App on 5173, agents on 5174.      | only for Workers AI |
 | `pnpm gen`           | Rewrites `packages/app/worker-configuration.d.ts`.     | no                  |
 | `pnpm build`         | Builds both Workers into `packages/*/dist`.            | no                  |
-| `pnpm check`         | Typechecks, lints, and format-checks the repo.         | no                  |
+| `pnpm check`         | Typechecks, lints, format-checks, and tests the repo.  | no                  |
+| `pnpm test`          | Runs the tests in both packages.                       | no                  |
 | `pnpm lint`          | Lints both packages and the root files with oxlint.    | no                  |
 | `pnpm fmt`           | Rewrites both packages and the root files with oxfmt.  | no                  |
 | `pnpm fmt:check`     | Fails when a file is not formatted.                    | no                  |
@@ -107,8 +120,26 @@ A fresh clone needs four things. Do them in this order, from the repo root.
   editing a `wrangler.jsonc`. Never edit it by hand.
 - CI runs `pnpm install --frozen-lockfile`, `pnpm check`, `pnpm build`, then
   `pnpm gen` and `git diff --exit-code` on that generated file. `pnpm check`
-  includes `oxlint` and `oxfmt --check`. No step needs an account, so the
-  workflow carries no secrets. Run the same commands before you push.
+  includes `oxlint`, `oxfmt --check`, and `vitest`. No step needs an account, so
+  the workflow carries no secrets. Run the same commands before you push.
+- `pnpm patch:tsgo` patches the shared `typescript` and `oxlint` binaries so
+  `@effect/tsgo` diagnostics reach both `tsc` and `oxlint`. Run it at the root
+  only: both packages resolve one `typescript` binary, and two concurrent patches
+  fail on it. The root `prepare` script covers `pnpm install`, and `pnpm check`
+  runs it first so the gate never depends on a prior install.
+- The root `package.json` depends on `typescript` so `node_modules/.bin/tsc`
+  exists at the repo root. Editor language servers try that path before `$PATH`
+  (Neovim's `tsc` client does), so it must exist for the editor to run the
+  patched, Effect-enabled binary. Remove the root dependency and the editor
+  falls back to a global `tsc` with no Effect diagnostics.
+- Both packages test with `@effect/vitest`, which needs vitest 5.
+  `@cloudflare/vitest-plugin` (the successor to `@cloudflare/vitest-pool-workers`)
+  peers vitest 4, so it is not installed and Worker-runtime tests are out of
+  scope for now. Tests run in the plain Node pool; keep the package
+  `vitest.config.ts` free of plugins so the Cloudflare plugin never starts. Move
+  every test into the pool with `cloudflareTest()` once the plugin accepts
+  vitest 5. Do not step `effect` back to rc.112 to force it; the repo prefers
+  the newer Effect.
 - The root `oxfmt.config.ts` and `oxlint.config.ts` are the only formatting and
   lint configs; both packages share them. Package scripts call the binaries from
   the root `devDependencies`, and the root scripts exclude `packages/**` so the

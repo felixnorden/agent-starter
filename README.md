@@ -77,6 +77,7 @@ export CLOUDFLARE_ACCOUNT_ID=<your account id>     # npx wrangler whoami
 ├─ packages/
 │  ├─ app/                         # RedwoodSDK Worker (port 5173, "app-starter")
 │  │  ├─ AGENTS.md                 # where this package's docs live
+│  │  ├─ src/lib/agent-message.ts  # Effect Schema decoder for the agent route
 │  │  ├─ src/worker.tsx            # route map; mounts /api/agent/:conversationId
 │  │  └─ wrangler.jsonc            # declares the AGENT service binding
 │  └─ agents/                      # Flue Worker (port 5174, "app-starter-agents")
@@ -84,6 +85,7 @@ export CLOUDFLARE_ACCOUNT_ID=<your account id>     # npx wrangler whoami
 │     ├─ AGENTS.md                 # how agents work in this package
 │     ├─ src/agents/assistant.ts   # the Assistant agent
 │     ├─ src/app.ts                # agent route map
+│     ├─ src/lib/model-choice.ts   # chooses AGENT_MODEL or the fallback
 │     └─ wrangler.jsonc            # AI binding + Durable Object migrations
 ├─ turbo.json
 └─ pnpm-workspace.yaml
@@ -113,7 +115,8 @@ rest need no account.
 | `pnpm dev`                  | Starts both Workers. App on 5173, agents on 5174.                     | yes              |
 | `pnpm gen`                  | Regenerates `packages/app/worker-configuration.d.ts`.                 | no               |
 | `pnpm build`                | Builds both Workers into `packages/*/dist`.                           | no               |
-| `pnpm check`                | Typechecks, lints, and format-checks the repo.                        | no               |
+| `pnpm check`                | Typechecks, lints, format-checks, and tests the repo.                 | no               |
+| `pnpm test`                 | Runs the tests in both packages.                                      | no               |
 | `pnpm lint`                 | Lints both packages and the root files with oxlint.                   | no               |
 | `pnpm fmt`                  | Rewrites both packages and the root files with oxfmt.                 | no               |
 | `pnpm fmt:check`            | Fails when a file is not formatted.                                   | no               |
@@ -129,6 +132,66 @@ To run one agent with no server, use the Flue CLI from its package:
 ```sh
 pnpm --filter ./packages/agents exec flue run src/agents/assistant.ts --message "Hi"
 ```
+
+## Testing and Effect
+
+Both packages use [Effect](https://effect.website) and test with
+`@effect/vitest`. Each package carries one small, real Effect module and its
+test, so the harness has a worked example to copy.
+
+| Package           | Effect module              | Test                            |
+| ----------------- | -------------------------- | ------------------------------- |
+| `packages/app`    | `src/lib/agent-message.ts` | `src/lib/agent-message.test.ts` |
+| `packages/agents` | `src/lib/model-choice.ts`  | `src/lib/model-choice.test.ts`  |
+
+`src/lib/agent-message.ts` decodes the `POST /api/agent/:conversationId` body
+with `Schema.Class`, and the route answers 400 when that decode fails. Nothing
+parses the body by hand any more.
+
+`src/lib/model-choice.ts` reads `AGENT_MODEL` through Effect `Config`. The
+`Assistant` agent runs it with `Effect.runSync`, and the test supplies a fixed
+`ConfigProvider` so no test touches the real environment.
+
+`pnpm test` runs every package. `pnpm check` runs the tests too, so CI covers
+them with no extra step.
+
+### Versions live in one catalog
+
+`pnpm-workspace.yaml` pins `effect`, `@effect/vitest`, `@effect/tsgo`, `vitest`,
+and `oxlint-tsgolint` once under `catalogs.effect`. Both packages reference them
+as `catalog:effect`. Keep the versions in step: `@effect/vitest` peers
+`effect ^4.0.0-rc.118` and `vitest >=5 <6`.
+
+### Tests run in Node, not on workerd
+
+`@cloudflare/vitest-plugin` 1.3.0 is the successor to
+`@cloudflare/vitest-pool-workers` and exports `cloudflareTest()`, the plugin
+that runs tests inside the Workers runtime. It peers `vitest ^4.1.0`, so it
+cannot share an install with `@effect/vitest`, which needs vitest 5. Tests
+therefore run in the plain Node pool. Put pure logic, Effect services, and
+Schema decoding there. Testing Worker bindings, Durable Objects, or `env.AI`
+waits for the plugin to accept vitest 5; at that point every test can move into
+the pool. Each package has a plugin-free `vitest.config.ts` for exactly this
+reason: loading the package's Vite config would start the Cloudflare plugin.
+
+`effect` and `@effect/vitest` at rc.112 do accept vitest 4.1, but rc.113 moved
+to vitest 5. Moving to the plugin today means stepping Effect back six rc
+releases. This repository prefers the newer Effect.
+
+### Effect diagnostics
+
+`@effect/tsgo` supplies Effect diagnostics to both `tsc` and `oxlint`.
+`pnpm patch:tsgo` patches the shared `typescript` and `oxlint` binaries. The
+root `prepare` script runs it on `pnpm install`, and `pnpm check` runs it first
+so a fresh install always has diagnostics. It runs once, at the root, because
+both packages share one `typescript` binary. See `AGENTS.md` for what to read
+before writing Effect code.
+
+The root `package.json` pins `typescript` as a devDependency. That puts
+`node_modules/.bin/tsc` at the repo root, which is the first path an editor's
+TypeScript client looks at (Neovim's `tsc` server, for one). Without the root
+pin those clients fall back to a global `tsc`, which carries no Effect
+diagnostics. Restart the editor's language server after an install.
 
 ## Skills
 

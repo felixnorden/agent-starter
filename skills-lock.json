@@ -13,6 +13,12 @@
       "skillPath": "skills/durable-objects/SKILL.md",
       "computedHash": "f4ce39a555f70e78c394cad5451a7d26c81874afb2fc2d16e20c909c5c3794ec"
     },
+    "effect-ts": {
+      "source": "effect-ts/skills",
+      "sourceType": "github",
+      "skillPath": "skills/effect-ts/SKILL.md",
+      "computedHash": "6bdb9b95aa83071eca2f67ae947b7d398a22e9e6e08f6cfa35de9516b03efa6e"
+    },
     "hallmark": {
       "source": "nutlope/hallmark",
       "sourceType": "github",

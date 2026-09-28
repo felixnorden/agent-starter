@@ -22,12 +22,14 @@
     "check": "npm run generate && npm run types",
     "types": "tsc",
     "check:types": "tsc",
+    "test": "vitest run",
     "lint": "oxlint .",
     "fmt": "oxfmt .",
     "fmt:check": "oxfmt --check ."
   },
   "dependencies": {
     "@flue/sdk": "^2.1.1",
+    "effect": "catalog:effect",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-server-dom-webpack": "19.2.8",
@@ -36,6 +38,8 @@
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.50.0",
     "@cloudflare/workers-types": "5.20260801.1",
+    "@effect/tsgo": "catalog:effect",
+    "@effect/vitest": "catalog:effect",
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "~26.1.2",
     "@types/react": "19.2.18",
@@ -43,6 +47,7 @@
     "tailwindcss": "^4.3.3",
     "typescript": "7.0.2",
     "vite": "~8.2.0",
+    "vitest": "catalog:effect",
     "wrangler": "4.118.0"
   }
 }

@@ -34,15 +34,15 @@ function stripBrokenDependencySourcemaps(): Plugin {
     apply: "serve",
     load(id) {
       const file = id.split("?")[0];
-      if (!brokenPackages.some((pattern) => pattern.test(file))) return;
+      if (!brokenPackages.some((pattern) => pattern.test(file))) return null;
       let code: string;
       try {
         code = readFileSync(file, "utf8");
       } catch {
-        return;
+        return null;
       }
       const stripped = code.replace(sourceMappingUrlComment, "");
-      if (stripped === code) return;
+      if (stripped === code) return null;
       return { code: stripped, map: null };
     },
   };

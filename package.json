@@ -8,8 +8,11 @@
   "scripts": {
     "dev": "node scripts/require-account.mjs dev && turbo run dev",
     "build": "turbo run build",
-    "check": "turbo run check:types lint fmt:check",
+    "check": "turbo run check:types lint fmt:check test",
     "check:types": "turbo run check:types",
+    "test": "turbo run test",
+    "patch:tsgo": "effect-tsgo patch --typescript --oxlint",
+    "prepare": "pnpm patch:tsgo",
     "lint": "oxlint . '!packages/**' && turbo run lint",
     "fmt": "oxfmt . '!packages/**' && turbo run fmt",
     "fmt:check": "oxfmt --check . '!packages/**' && turbo run fmt:check",
@@ -22,10 +25,14 @@
     "init:template": "node scripts/init-template.mjs"
   },
   "devDependencies": {
+    "@effect/tsgo": "catalog:effect",
+    "effect": "catalog:effect",
     "oxfmt": "0.70.0",
     "oxlint": "1.85.0",
+    "oxlint-tsgolint": "catalog:effect",
     "skills": "1.7.0",
-    "turbo": "^2.11.4"
+    "turbo": "^2.11.4",
+    "typescript": "7.0.2"
   },
   "engines": {
     "node": ">=22.20.0"

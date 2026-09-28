@@ -1,4 +1,5 @@
 {
+  "$schema": "./node_modules/@effect/tsgo/schema.json",
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
@@ -9,7 +10,23 @@
     "verbatimModuleSyntax": true,
     "strict": true,
     "skipLibCheck": true,
-    "noEmit": true
+    "noEmit": true,
+    // The Effect language service. `effect-tsgo patch` in the `prepare`
+    // script wires this into `tsc`, so `pnpm check:types` reports Effect
+    // diagnostics and the editor gets the same quick fixes.
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "diagnosticSeverity": {
+          "strictEffectProvide": "warning",
+          "preferSchemaOverJson": "warning",
+          "floatingEffect": "error",
+          "catchAllTagDispatchToCatchTag": "warning",
+          "asyncFunction": "warning"
+        },
+        "ignoreEffectErrorsInTscExitCode": false
+      }
+    ]
   },
   "include": ["src", "*.ts"]
 }

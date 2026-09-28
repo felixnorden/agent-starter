@@ -1,6 +1,17 @@
 packages:
   - "packages/*"
 
+# Shared dependency pins. Each package references these with `catalog:effect`,
+# so the Effect toolchain moves in one place. The versions must agree:
+# `@effect/vitest` peers `effect ^4.0.0-rc.118` and `vitest >=5 <6`.
+catalogs:
+  effect:
+    effect: 4.0.0-rc.118
+    "@effect/tsgo": 0.46.1
+    "@effect/vitest": 4.0.0-rc.118
+    oxlint-tsgolint: 7.0.2003
+    vitest: 5.0.2
+
 # @flue/runtime 2.1.1 allows `@earendil-works/pi-ai` ^0.83.0, but versions
 # below 0.86.0 send no `x-opencode-session` header. OpenCode Go rejects those
 # requests with 400 MissingSessionID. 0.87.1 is the latest release that sends
@@ -23,3 +34,7 @@ allowBuilds:
   protobufjs: false
   sharp: true
   workerd: true
+
+minimumReleaseAgeExclude:
+  - "@effect/vitest@4.0.0-rc.118"
+  - effect@4.0.0-rc.118

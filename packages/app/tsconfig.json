@@ -1,4 +1,5 @@
 {
+  "$schema": "./node_modules/@effect/tsgo/schema.json",
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig.json to read more about this file */
 
@@ -43,7 +44,24 @@
     "strict": true,
 
     /* Skip type checking all .d.ts files. */
-    "skipLibCheck": true
+    "skipLibCheck": true,
+
+    /* The Effect language service. `effect-tsgo patch` in the `prepare`
+       script wires it into `tsc`, so `pnpm check:types` reports Effect
+       diagnostics and the editor gets the same quick fixes. */
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "diagnosticSeverity": {
+          "strictEffectProvide": "warning",
+          "preferSchemaOverJson": "warning",
+          "floatingEffect": "error",
+          "catchAllTagDispatchToCatchTag": "warning",
+          "asyncFunction": "warning"
+        },
+        "ignoreEffectErrorsInTscExitCode": false
+      }
+    ]
   },
   "exclude": ["node_modules", ".tmp"]
 }

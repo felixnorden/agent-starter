@@ -52,6 +52,10 @@ More RedwoodSDK sources:
 
 - `src/worker.tsx` — `defineApp([...])`. Middleware and interruptors first, then
   routes. `/api/agent/:conversationId` talks to the Assistant agent.
+- `src/lib/agent-message.ts` — the Effect Schema for that route's body. The
+  route returns 400 when its `decodeAgentMessage` effect fails.
+- `src/lib/agent-message.test.ts` — the test for that decoder.
+- `vitest.config.ts` — tests in the plain Node pool, with no Vite plugins.
 - `src/app/pages/starter.tsx` — the landing page. `src/app/document.tsx` — the HTML shell.
 - `src/app/styles.css` — global Tailwind stylesheet and design tokens.
 - `src/app/headers.ts` — shared response headers.

@@ -7,21 +7,26 @@
     "build": "vite build",
     "deploy": "vite build && wrangler deploy",
     "check:types": "tsc --noEmit",
+    "test": "vitest run",
     "lint": "oxlint .",
     "fmt": "oxfmt .",
     "fmt:check": "oxfmt --check ."
   },
   "dependencies": {
     "@flue/runtime": "^2.1.1",
+    "effect": "catalog:effect",
     "hono": "^4.12.32"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.39.2",
+    "@effect/tsgo": "catalog:effect",
+    "@effect/vitest": "catalog:effect",
     "@flue/cli": "^2.1.1",
     "@flue/vite": "^2.1.1",
     "@types/node": "^22.10.10",
     "typescript": "^7.0.2",
     "vite": "^8.0.14",
+    "vitest": "catalog:effect",
     "wrangler": "^4.113.0"
   }
 }

@@ -1,16 +1,22 @@
+import { recommended as effectRecommended } from "@effect/tsgo/oxlint-presets";
 import { defineConfig } from "oxlint";
 
 // One config for the whole monorepo. Each package runs `oxlint .` from its own
 // directory, and oxlint walks up to this file. Patterns are relative to this
 // directory, so they start with `**/`.
 export default defineConfig({
-  plugins: ["typescript", "unicorn", "oxc", "import", "node", "promise", "react"],
+  // Effect's type-aware rules. `oxlint-tsgolint` supplies the type checker, and
+  // `pnpm patch:tsgo` puts the same diagnostics in `tsc`. The spread brings in
+  // `options.typeAware: true`, which is what makes these rules run at all.
+  ...effectRecommended,
+  plugins: ["effecttsgo", "typescript", "unicorn", "oxc", "import", "node", "promise", "react"],
   categories: {
     correctness: "error",
     suspicious: "warn",
     perf: "warn",
   },
   rules: {
+    ...effectRecommended.rules,
     // React 19 uses the automatic JSX runtime, so `React` need not be in scope.
     "react/react-in-jsx-scope": "off",
   },

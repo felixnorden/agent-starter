@@ -24,6 +24,7 @@
     },
     "generate": {
       "cache": false
-    }
+    },
+    "test": {}
   }
 }
