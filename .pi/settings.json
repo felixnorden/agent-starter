@@ -1,3 +1,4 @@
 {
-  "packages": ["npm:@ftrdotdev/pi-qrspi@0.2.2", "npm:pi-subagents@0.70.1"]
+  "$schema": "https://pi.dev/schemas/settings.schema.json",
+  "packages": ["npm:@ftrdotdev/pi-qrspi@^0.2.4", "npm:pi-subagents@^0.70.1"]
 }
