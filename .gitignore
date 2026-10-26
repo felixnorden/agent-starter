@@ -75,3 +75,6 @@ coverage
 
 # AI
 .agents
+
+# Git worktrees
+.worktrees
