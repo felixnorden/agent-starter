@@ -159,24 +159,28 @@ them with no extra step.
 
 `pnpm-workspace.yaml` pins `effect`, `@effect/vitest`, `@effect/tsgo`, `vitest`,
 and `oxlint-tsgolint` once under `catalogs.effect`. Both packages reference them
-as `catalog:effect`. Keep the versions in step: `@effect/vitest` peers
-`effect ^4.0.0-rc.118` and `vitest >=5 <6`.
+as `catalog:effect`. Keep the versions in step: `@effect/vitest` 4.0.6 peers
+`effect ^4.0.6` and `vitest >=5 <6`. `@effect/tsgo` 0.57.0 supports oxlint
+1.87.0 to 1.89.0 and oxlint-tsgolint 7.0.2004 or 7.0.2005, so the root `oxlint`
+pin must stay inside that range.
 
-### Tests run in Node, not on workerd
+### Tests run on workerd
 
-`@cloudflare/vitest-plugin` 1.3.0 is the successor to
-`@cloudflare/vitest-pool-workers` and exports `cloudflareTest()`, the plugin
-that runs tests inside the Workers runtime. It peers `vitest ^4.1.0`, so it
-cannot share an install with `@effect/vitest`, which needs vitest 5. Tests
-therefore run in the plain Node pool. Put pure logic, Effect services, and
-Schema decoding there. Testing Worker bindings, Durable Objects, or `env.AI`
-waits for the plugin to accept vitest 5; at that point every test can move into
-the pool. Each package has a plugin-free `vitest.config.ts` for exactly this
-reason: loading the package's Vite config would start the Cloudflare plugin.
+`@cloudflare/vitest-plugin` 1.4.7 exports `cloudflareTest()`, the plugin that
+runs Vitest tests inside the Workers runtime. It peers `vitest ^4.1.0 || ^5.0.0`,
+so it shares an install with `@effect/vitest`, which needs vitest 5. Both
+packages therefore run their whole suite on workerd, the runtime they ship on.
 
-`effect` and `@effect/vitest` at rc.112 do accept vitest 4.1, but rc.113 moved
-to vitest 5. Moving to the plugin today means stepping Effect back six rc
-releases. This repository prefers the newer Effect.
+Each package's `vitest.config.ts` passes `miniflare` options and no Wrangler
+config path. That detail is deliberate. A named Wrangler config makes the pool
+build the package Worker and its bindings: `packages/agents` declares a remote
+`ai` binding and `packages/app` declares an `AGENT` service binding, and neither
+is available during a test run. No `configPath` means no bindings, so the tests
+stay pure logic and need no Cloudflare account.
+
+When a test needs a binding, add it to `miniflare` in that package's
+`vitest.config.ts` rather than pointing the pool at `wrangler.jsonc`. Binding,
+Durable Object, and `env.AI` tests can then opt in one at a time.
 
 ### Effect diagnostics
 
@@ -186,6 +190,11 @@ root `prepare` script runs it on `pnpm install`, and `pnpm check` runs it first
 so a fresh install always has diagnostics. It runs once, at the root, because
 both packages share one `typescript` binary. See `AGENTS.md` for what to read
 before writing Effect code.
+
+`@effect/tsgo` 0.57.0 counts Effect warnings as failures in the `tsc` exit
+code. Both `tsconfig.json` files therefore list `@effect/vitest#it` under
+`allowedUnstableApis`, because `it.effect` is the only way to run an Effect test
+and that export is marked unstable. Any other warning still fails the gate.
 
 The root `package.json` pins `typescript` as a devDependency. That puts
 `node_modules/.bin/tsc` at the repo root, which is the first path an editor's

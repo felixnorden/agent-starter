@@ -10,9 +10,8 @@ The RedwoodSDK Worker. It serves the HTML app and forwards chat traffic to the
 This package is one half of a pnpm + Turborepo monorepo. The root docs cover
 setup, and this one covers only what is specific to the app:
 
-- [`../../README.md`](../../README.md) covers setup, architecture, and deploy
-  order.
-- [`../../AGENTS.md`](../../AGENTS.md) lists the repo-wide commands.
+- [`../../README.md`](../../README.md) covers setup, commands, architecture, and
+  deploy order.
 - [`AGENTS.md`](AGENTS.md) holds this package's own docs.
 
 ## Commands
