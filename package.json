@@ -27,15 +27,15 @@
   "devDependencies": {
     "@effect/tsgo": "catalog:effect",
     "effect": "catalog:effect",
-    "oxfmt": "0.70.0",
-    "oxlint": "1.85.0",
+    "oxfmt": "0.74.0",
+    "oxlint": "1.89.0",
     "oxlint-tsgolint": "catalog:effect",
-    "skills": "1.7.0",
-    "turbo": "^2.11.4",
+    "skills": "1.7.4",
+    "turbo": "^2.11.10",
     "typescript": "7.0.2"
   },
   "engines": {
     "node": ">=22.20.0"
   },
-  "packageManager": "pnpm@12.6.0"
+  "packageManager": "pnpm@12.15.0"
 }

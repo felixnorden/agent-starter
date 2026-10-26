@@ -24,6 +24,10 @@
           "catchAllTagDispatchToCatchTag": "warning",
           "asyncFunction": "warning"
         },
+        // The tests use `it` from `@effect/vitest` on purpose, and `it.effect`
+        // runs an Effect. Allow that one unstable export so its warning does
+        // not fail the gate; every other warning stays fatal.
+        "allowedUnstableApis": ["@effect/vitest#it"],
         "ignoreEffectErrorsInTscExitCode": false
       }
     ]

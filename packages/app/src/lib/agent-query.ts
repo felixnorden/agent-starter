@@ -9,7 +9,9 @@ import { Schema } from "effect";
  * request. The route parses with `onExcessProperty: "error"`, so it accepts
  * exactly the parameters it documents and never silently drops one.
  */
-export class AgentSendQuery extends Schema.Class<AgentSendQuery>("app/lib/AgentSendQuery")({
+export class AgentSendQuery extends Schema.Class<AgentSendQuery, { readonly brand: unique symbol }>(
+  "app/lib/AgentSendQuery",
+)({
   wait: Schema.optionalKey(Schema.Literals(["1"])),
 }) {}
 
@@ -24,7 +26,9 @@ export class AgentSendQuery extends Schema.Class<AgentSendQuery>("app/lib/AgentS
  * the protocol: an unknown value fails here with 400, the same status the
  * agents Worker returns for it.
  */
-export class AgentReadQuery extends Schema.Class<AgentReadQuery>("app/lib/AgentReadQuery")({
+export class AgentReadQuery extends Schema.Class<AgentReadQuery, { readonly brand: unique symbol }>(
+  "app/lib/AgentReadQuery",
+)({
   view: Schema.optionalKey(Schema.Literals(["history", "updates"])),
   offset: Schema.optionalKey(Schema.NonEmptyString),
   live: Schema.optionalKey(Schema.Literals(["long-poll", "sse"])),
@@ -37,14 +41,14 @@ export class AgentReadQuery extends Schema.Class<AgentReadQuery>("app/lib/AgentR
  * `cause` stays server-side. The route logs the cause and answers 502 with the
  * outcome only, because the Flue protocol keeps failure detail off the wire.
  */
-export class AgentReplyUnavailable extends Schema.TaggedError<AgentReplyUnavailable>()(
-  "AgentReplyUnavailable",
-  {
-    submissionId: Schema.String,
-    failure: Schema.Literals(["failed", "aborted", "terminal_event_missing", "unknown"]),
-    cause: Schema.Defect(),
-  },
-) {}
+export class AgentReplyUnavailable extends Schema.TaggedError<
+  AgentReplyUnavailable,
+  { readonly brand: unique symbol }
+>()("AgentReplyUnavailable", {
+  submissionId: Schema.String,
+  failure: Schema.Literals(["failed", "aborted", "terminal_event_missing", "unknown"]),
+  cause: Schema.Defect(),
+}) {}
 
 /**
  * The `FlueExecutionError` an unsettled `read()` throws carries the Flue

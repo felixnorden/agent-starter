@@ -5,7 +5,9 @@ import { Schema } from "effect";
  * one definition for the runtime validator and the TypeScript type, so the
  * route and its tests agree on what a valid body is.
  */
-export class AgentMessage extends Schema.Class<AgentMessage>("app/lib/AgentMessage")({
+export class AgentMessage extends Schema.Class<AgentMessage, { readonly brand: unique symbol }>(
+  "app/lib/AgentMessage",
+)({
   message: Schema.NonEmptyString,
 }) {}
 

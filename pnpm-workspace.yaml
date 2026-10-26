@@ -3,21 +3,20 @@ packages:
 
 # Shared dependency pins. Each package references these with `catalog:effect`,
 # so the Effect toolchain moves in one place. The versions must agree:
-# `@effect/vitest` peers `effect ^4.0.0-rc.118` and `vitest >=5 <6`.
+# `@effect/vitest` 4.0.6 peers `effect ^4.0.6` and `vitest >=5 <6`, and
+# `@effect/tsgo` 0.57.0 supports oxlint 1.87.0-1.89.0, so the root `oxlint`
+# pin in package.json must stay inside that range.
 catalogs:
   effect:
-    effect: 4.0.0-rc.118
-    "@effect/tsgo": 0.46.1
-    "@effect/vitest": 4.0.0-rc.118
-    oxlint-tsgolint: 7.0.2003
-    vitest: 5.0.2
+    effect: 4.0.6
+    "@effect/tsgo": 0.57.0
+    "@effect/vitest": 4.0.6
+    oxlint-tsgolint: 7.0.2005
+    vitest: 5.0.5
 
-# @flue/runtime 2.1.1 allows `@earendil-works/pi-ai` ^0.83.0, but versions
-# below 0.86.0 send no `x-opencode-session` header. OpenCode Go rejects those
-# requests with 400 MissingSessionID. 0.87.1 is the latest release that sends
-# the header, and it stays inside the ^0.83.0 range Flue declares.
-overrides:
-  "@earendil-works/pi-ai": "0.87.1"
+# Flue no longer needs a pin here. `@flue/runtime` 2.3.0 declares
+# `@earendil-works/pi-ai` ^1.1.0, and 1.1.0 sends the `x-opencode-session`
+# header that OpenCode Go requires. The 2.1.1-era override to 0.87.1 is gone.
 
 # pnpm 11 no longer reads the package.json "pnpm" field; these projects are
 # also installed standalone (tarball E2E envs, create-rwsdk output), so they
@@ -36,5 +35,4 @@ allowBuilds:
   workerd: true
 
 minimumReleaseAgeExclude:
-  - "@effect/vitest@4.0.0-rc.118"
-  - effect@4.0.0-rc.118
+  - "@cloudflare/workers-types@5.20261026.1"
